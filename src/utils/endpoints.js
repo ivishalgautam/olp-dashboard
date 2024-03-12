@@ -5,7 +5,9 @@ export const endpoints = {
     refresh: "/auth/refresh",
     username: "/auth/username",
   },
+
   profile: "/users/me",
+  users: { getAll: "/users" },
   products: {
     getAll: "/products",
     admin: "/products/admin/getAll",
@@ -26,5 +28,15 @@ export const endpoints = {
   files: {
     upload: "/upload/files",
     getFiles: "/upload",
+  },
+  cart: {
+    getAll: "/carts",
+    temp: "/carts/temp-cart",
+  },
+  orders: {
+    getAll: "/orders",
+  },
+  enquiries: {
+    getAll: "/enquiries",
   },
 };

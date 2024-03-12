@@ -46,10 +46,10 @@ export function DataTable({ columns, data }) {
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter banners..."
-          value={table?.getColumn("name")?.getFilterValue() ?? ""}
+          placeholder="Filter products..."
+          value={table?.getColumn("first_name")?.getFilterValue() ?? ""}
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("first_name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

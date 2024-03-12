@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import Title from "../Title";
 import http from "@/utils/http";
 import { endpoints } from "@/utils/endpoints";
@@ -13,6 +13,7 @@ import Image from "next/image";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { isObject } from "@/utils/object";
 import { AiOutlineDelete } from "react-icons/ai";
+import { Switch } from "@/components/ui/switch";
 
 export function CategoryForm({
   type,
@@ -35,6 +36,7 @@ export function CategoryForm({
   const onSubmit = (data) => {
     const payload = {
       name: data.name,
+      is_featured: data.is_featured,
       image: pictures,
     };
 
@@ -57,6 +59,7 @@ export function CategoryForm({
         );
 
         data && setValue("name", data?.name);
+        data && setValue("is_featured", data?.is_featured);
         data && setPictures(data?.image);
       } catch (error) {
         console.error(error);
@@ -124,10 +127,10 @@ export function CategoryForm({
             type === "create"
               ? "Create category"
               : type === "view"
-              ? "Category details"
-              : type === "edit"
-              ? "Edit category"
-              : "Are you sure you want to delete"
+                ? "Category details"
+                : type === "edit"
+                  ? "Edit category"
+                  : "Are you sure you want to delete"
           }
         />
         <div>
@@ -185,14 +188,32 @@ export function CategoryForm({
           </div>
         )}
 
+        <div className="flex justify-center gap-1 flex-col mt-4">
+          <Label htmlFor="is_featured">Is featured?</Label>
+          <Controller
+            control={control}
+            name="is_featured"
+            render={({ field: { onChange, value } }) => (
+              <Switch
+                onCheckedChange={onChange}
+                checked={value}
+                disabled={type === "view" || type === "delete"}
+              />
+            )}
+          />
+          {errors.is_featured && (
+            <span className="text-red-600">{errors.is_featured.message}</span>
+          )}
+        </div>
+
         <div className="text-right">
           {type !== "view" && (
             <Button variant={type === "delete" ? "destructive" : "default"}>
               {type === "create"
                 ? "Create"
                 : type === "edit"
-                ? "Update"
-                : "Delete"}
+                  ? "Update"
+                  : "Delete"}
             </Button>
           )}
         </div>

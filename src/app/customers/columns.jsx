@@ -1,12 +1,15 @@
 "use client";
 import { Button } from "../../components/ui/button";
 import { ArrowUpDown } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { Switch } from "@/components/ui/switch";
+import { Small } from "@/components/ui/typography";
 import {
   CaretSortIcon,
   ChevronDownIcon,
   DotsHorizontalIcon,
 } from "@radix-ui/react-icons";
-import Image from "next/image";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -17,22 +20,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export const columns = (setType, openModal, setBannerId) => [
+import moment from "moment";
+
+export const columns = (
+  setType,
+  openModal,
+  setCustomerId,
+  handleCustomerStatus
+) => [
   {
-    accessorKey: "image",
+    accessorKey: "image_url",
     header: ({ column }) => {
       return <Button variant="ghost">Image</Button>;
     },
     cell: ({ row }) => {
-      const image = row.original.image;
-      console.log({ image });
+      const image = row.original.image_url;
       return (
         <Image
-          src={`${process.env.NEXT_PUBLIC_IMAGE_DOMAIN}/${
-            image?.desktop || image?.mobile
-          }`}
-          width={100}
-          height={100}
+          src={`${process.env.NEXT_PUBLIC_IMAGE_DOMAIN}/${image}`}
+          width={50}
+          height={50}
           alt="image"
           className="rounded"
         />
@@ -40,7 +47,7 @@ export const columns = (setType, openModal, setBannerId) => [
     },
   },
   {
-    accessorKey: "name",
+    accessorKey: "first_name",
     header: ({ column }) => {
       return (
         <Button
@@ -52,18 +59,57 @@ export const columns = (setType, openModal, setBannerId) => [
         </Button>
       );
     },
+    cell: ({ row }) => {
+      return <div className="capitalize">{row.getValue("first_name")}</div>;
+    },
   },
   {
-    accessorKey: "type",
+    accessorKey: "mobile_number",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Type
+          Phone
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "email",
+    header: ({ column }) => {
+      return <Button variant="ghost">Email</Button>;
+    },
+  },
+  {
+    accessorKey: "blocked",
+    header: ({ column }) => {
+      return <Button variant="ghost">Status</Button>;
+    },
+    cell: ({ row }) => {
+      const is_blocked = row.original.blocked;
+      const id = row.original.id;
+      return (
+        <div className="flex items-center justify-center gap-1">
+          <Switch
+            checked={row.getValue("blocked")}
+            onCheckedChange={() => handleCustomerStatus(id, !is_blocked)}
+          />
+          <Small>{row.getValue("blocked") ? "Yes" : "No"}</Small>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "created_at",
+    header: ({ column }) => {
+      return <Button variant="ghost">Registered On</Button>;
+    },
+    cell: ({ row }) => {
+      return (
+        <div>{moment(row.getValue("created_at")).format("DD/MM/YYYY")}</div>
       );
     },
   },
@@ -72,7 +118,6 @@ export const columns = (setType, openModal, setBannerId) => [
     enableHiding: false,
     cell: ({ row }) => {
       const id = row.original.id;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -83,29 +128,17 @@ export const columns = (setType, openModal, setBannerId) => [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => {
-                setBannerId(id);
-                setType("view");
-                openModal();
-              }}
-            >
-              View
+            <DropdownMenuItem>
+              <Link href={`/customers/${id}/view`}>View</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Link href={`/customers/${id}/edit`}>Edit</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                setBannerId(id);
-                setType("edit");
-                openModal();
-              }}
-            >
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => {
-                setBannerId(id);
+                setCustomerId(id);
                 setType("delete");
                 openModal();
               }}

@@ -29,8 +29,8 @@ export const columns = (setType, openModal, setCategoryId) => [
       return (
         <Image
           src={`${process.env.NEXT_PUBLIC_IMAGE_DOMAIN}/${image}`}
-          width={100}
-          height={100}
+          width={50}
+          height={50}
           alt="image"
           className="rounded"
         />

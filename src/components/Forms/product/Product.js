@@ -1,27 +1,28 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Title from "../../Title";
+import Image from "next/image";
+import { useFetchCategories } from "../../../hooks/useFetchCategories";
+import useLocalStorage from "@/hooks/useLocalStorage.js";
+import useFetchBrands from "@/hooks/useFetchBrands";
+import { useFetchProducts } from "@/hooks/useFetchProducts";
+
 import http from "@/utils/http";
 import { endpoints } from "@/utils/endpoints";
+import { isObject } from "@/utils/object";
+import Select from "react-select";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import axios from "axios";
+import { AiOutlineDelete } from "react-icons/ai";
+import { Editor } from "primereact/editor";
+
+import Title from "../../Title";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
-import { Checkbox } from "../../ui/checkbox";
-import { useFetchCategories } from "../../../hooks/useFetchCategories";
-import Select from "react-select";
-import { Controller, useForm } from "react-hook-form";
-import useLocalStorage from "@/hooks/useLocalStorage.js";
-import axios from "axios";
-import Image from "next/image";
-import { toast } from "sonner";
-import { isObject } from "@/utils/object";
-import { AiOutlineDelete } from "react-icons/ai";
 import { useRouter } from "next/navigation";
-import { Editor } from "primereact/editor";
-import useFetchBrands from "@/hooks/useFetchBrands";
-import { useFetchProducts } from "@/hooks/useFetchProducts";
 import { Switch } from "@/components/ui/switch";
-
+``;
 export function ProductForm({
   type,
   handleCreate,
@@ -40,7 +41,7 @@ export function ProductForm({
     formState: { errors },
   } = useForm();
   const [text, setText] = useState("");
-  console.log(text);
+  // console.log(text);
   const [tags, setTags] = useState([]);
   const [pictures, setPictures] = useState([]);
   const { data: categories } = useFetchCategories();
@@ -72,10 +73,12 @@ export function ProductForm({
     label,
   }));
 
-  const formattedProducts = products?.map(({ id: value, title: label }) => ({
-    value,
-    label,
-  }));
+  const formattedProducts = products?.data?.map(
+    ({ id: value, title: label }) => ({
+      value,
+      label,
+    })
+  );
 
   const onSubmit = (data) => {
     if (type === "delete") {
@@ -231,8 +234,6 @@ export function ProductForm({
     setValue("tag", "");
   };
 
-  console.log(watch());
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="rounded-xl">
       <div className="space-y-4">
@@ -245,10 +246,10 @@ export function ProductForm({
                   type === "create"
                     ? "Create product"
                     : type === "view"
-                    ? "Product details"
-                    : type === "edit"
-                    ? "Edit product"
-                    : "Are you sure you want to delete"
+                      ? "Product details"
+                      : type === "edit"
+                        ? "Edit product"
+                        : "Are you sure you want to delete"
                 }
               />
             </div>
@@ -507,7 +508,6 @@ export function ProductForm({
                 {/* description */}
                 <div className="col-span-3">
                   <Label htmlFor="description">Description</Label>
-
                   <Editor
                     readOnly={type === "view"}
                     value={text}
@@ -522,10 +522,10 @@ export function ProductForm({
                   <Controller
                     control={control}
                     name="is_featured"
-                    render={({ field: { onChange } }) => (
+                    render={({ field: { onChange, value } }) => (
                       <Switch
                         onCheckedChange={onChange}
-                        checked={getValues("is_featured")}
+                        checked={value}
                         disabled={type === "view" || type === "delete"}
                       />
                     )}
@@ -593,9 +593,9 @@ export function ProductForm({
                   </div>
                 )}
               </div>
-              <p className="text-gray-400 text-sm">
+              {/* <p className="text-gray-400 text-sm">
                 Recommended size (1000px*1248px)
-              </p>
+              </p> */}
             </div>
 
             {/* product seo */}
@@ -653,8 +653,8 @@ export function ProductForm({
               {type === "create"
                 ? "Create"
                 : type === "edit"
-                ? "Update"
-                : "Delete"}
+                  ? "Update"
+                  : "Delete"}
             </Button>
           )}
         </div>

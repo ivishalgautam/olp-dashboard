@@ -15,64 +15,43 @@ import {
 
 import moment from "moment";
 import { cn } from "@/lib/utils";
+import { Small } from "@/components/ui/typography";
 
-export const columns = (setType, openModal, setProductId) => [
+export const columns = (handleDelete) => [
   {
-    accessorKey: "pictures",
+    accessorKey: "id",
     header: ({ column }) => {
-      return <Button variant="ghost">Image</Button>;
+      return <Button variant="ghost">Order Id</Button>;
     },
     cell: ({ row }) => {
-      const image = row.original.pictures?.[0];
+      const id = row.original.id;
       return (
-        <Image
-          src={`${process.env.NEXT_PUBLIC_IMAGE_DOMAIN}/${image}`}
-          width={50}
-          height={50}
-          alt="image"
-          className="rounded"
-        />
+        <Small className={"bg-primary text-white rounded-full p-1 px-2"}>
+          <Link href={`/orders/${id}`}>{id}</Link>
+        </Small>
       );
     },
   },
   {
-    accessorKey: "title",
+    accessorKey: "customer_name",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Title
+          Customer name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
     cell: ({ row }) => {
-      return <div className={`capitalize`}>{row.original.title}</div>;
-    },
-  },
-  {
-    accessorKey: "type",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Type
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      return <div className={`capitalize`}>{row.original.type}</div>;
+      return <div className={`capitalize`}>{row.original.customer_name}</div>;
     },
   },
   {
     accessorKey: "status",
     header: ({ column }) => {
-      console.log({ column });
       return <Button variant="ghost">Status</Button>;
     },
     cell: ({ row }) => {
@@ -81,12 +60,14 @@ export const columns = (setType, openModal, setProductId) => [
         <div>
           <Button
             className={cn("capitalize", {
-              "bg-emerald-500 hover:bg-emerald-500/80": status === "published",
+              "bg-emerald-500 hover:bg-emerald-500/80": status === "completed",
               "bg-orange-500 hover:bg-orange-500/80": status === "pending",
-              "bg-rose-500 hover:bg-rose-500/80": status === "draft",
+              "bg-rose-500 hover:bg-rose-500/80": status === "cancelled",
+              "bg-blue-500 hover:bg-blue-500/80":
+                status === "partially_dispatched" || status === "dispatched",
             })}
           >
-            {status}
+            {status.split("_").join(" ")}
           </Button>
         </div>
       );
@@ -99,7 +80,7 @@ export const columns = (setType, openModal, setProductId) => [
     },
     cell: ({ row }) => {
       return (
-        <div>{moment(row.getValue("created_at")).format("DD/MM/YYYY")}</div>
+        <div>{moment(row.getValue("updated_at")).format("DD/MM/YYYY")}</div>
       );
     },
   },
@@ -107,7 +88,7 @@ export const columns = (setType, openModal, setProductId) => [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const id = row.original.id;
+      const id = row.getValue("id");
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -119,20 +100,10 @@ export const columns = (setType, openModal, setProductId) => [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem>
-              <Link href={`/products/${id}/view`}>View</Link>
+              <Link href={`/orders/${id}`}>View</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link href={`/products/${id}/edit`}>Edit</Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => {
-                setProductId(id);
-                setType("delete");
-                openModal();
-              }}
-            >
+            <DropdownMenuItem onClick={() => handleDelete({ id })}>
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

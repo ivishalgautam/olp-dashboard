@@ -2,7 +2,7 @@
 import Title from "@/components/Title";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useFetchProducts } from "../../hooks/useFetchProducts";
+import { useFetchCustomers } from "../../hooks/useFetchCustomers";
 import Spinner from "@/components/Spinner";
 import { useState } from "react";
 import { DataTable } from "./data-table";
@@ -19,14 +19,12 @@ async function deleteProduct(data) {
   return http().delete(`${endpoints.products.getAll}/${data.id}`);
 }
 
-export default function Products() {
+export default function Customers() {
   const [type, setType] = useState(null);
   const [isModal, setIsModal] = useState(false);
-  const [productId, setProductId] = useState(null);
+  const [customerId, setCustomerId] = useState(null);
   const queryClient = useQueryClient();
-  const { data, isLoading, isError, error } = useFetchProducts();
-  const filteredProducts = data?.data?.map((product) => product);
-
+  const { data, isLoading, isError, error } = useFetchCustomers();
   function openModal() {
     setIsModal(true);
   }
@@ -54,14 +52,15 @@ export default function Products() {
     deleteMutation.mutate(data);
   };
 
-  async function publishProduct(productId, value) {
+  async function handleCustomerStatus(customerId, status) {
+    console.log({ customerId, status });
     try {
       const response = await http().put(
-        `${endpoints.products.getAll}/publish/${productId}`,
-        { is_published: value }
+        `${endpoints.users.getAll}/status/${customerId}`,
+        { blocked: status }
       );
       toast.success(response.message);
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
       console.log({ response });
     } catch (error) {
       console.log(error);
@@ -79,16 +78,21 @@ export default function Products() {
   return (
     <div className="container mx-auto bg-white p-8 rounded-lg border-input">
       <div className="flex items-center justify-between">
-        <Title text={"Products"} />
+        <Title text={"Customers"} />
         <Button asChild>
-          <Link href={"/products/create"}>Create</Link>
+          <Link href={"/customers/create"}>Create</Link>
         </Button>
       </div>
 
       <div>
         <DataTable
-          columns={columns(setType, openModal, setProductId, publishProduct)}
-          data={filteredProducts}
+          columns={columns(
+            setType,
+            openModal,
+            setCustomerId,
+            handleCustomerStatus
+          )}
+          data={data}
         />
       </div>
 
@@ -98,7 +102,7 @@ export default function Products() {
             type={type}
             handleDelete={handleDelete}
             closeModal={closeModal}
-            productId={productId}
+            customerId={customerId}
             filteredProducts={filteredProducts}
           />
         </Modal>

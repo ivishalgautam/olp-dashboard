@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import http from "../../utils/http";
 import { endpoints } from "../../utils/endpoints";
 import Spinner from "../Spinner";
-import Logo from "../../../public/assets/images/logo.webp";
+import Logo from "../../../public/assets/images/logo.png";
 import LoginImage from "../../../public/assets/images/login.png";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -53,7 +53,7 @@ export default function LoginForm() {
 
   return (
     <div className="flex items-center justify-center login-gradient h-screen">
-      <div className="max-w-6xl grid grid-cols-2 rounded-[59px] overflow-hidden shadow-2xl">
+      <div className="max-w-6xl grid grid-cols-2 rounded-[59px] overflow-hidden shadow-2xl py-16">
         <div className="bg-white flex flex-col items-center justify-center space-y-6">
           <Image src={Logo} alt="" />
           <h3 className="font-primary font-bold text-[#110B56] text-2xl">
