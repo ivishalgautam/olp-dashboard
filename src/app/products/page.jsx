@@ -25,7 +25,8 @@ export default function Products() {
   const [productId, setProductId] = useState(null);
   const queryClient = useQueryClient();
   const { data, isLoading, isError, error } = useFetchProducts();
-  const filteredProducts = data?.data?.map((product) => product);
+
+  console.log({ data });
 
   function openModal() {
     setIsModal(true);
@@ -88,7 +89,7 @@ export default function Products() {
       <div>
         <DataTable
           columns={columns(setType, openModal, setProductId, publishProduct)}
-          data={filteredProducts}
+          data={data?.data}
         />
       </div>
 

@@ -92,7 +92,7 @@ export default function Customers() {
             setCustomerId,
             handleCustomerStatus
           )}
-          data={data}
+          data={data?.data}
         />
       </div>
 

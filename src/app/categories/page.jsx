@@ -126,7 +126,7 @@ export default function Categories() {
       <div>
         <DataTable
           columns={columns(setType, openModal, setCategoryId)}
-          data={data?.map(({ id, name, image }) => ({ id, name, image }))}
+          data={data?.data?.map(({ id, name, image }) => ({ id, name, image }))}
         />
       </div>
 

@@ -63,12 +63,14 @@ export function ProductForm({
     { value: "pending", label: "Pending" },
   ];
 
-  const formattedCategories = categories?.map(({ id: value, name: label }) => ({
-    value,
-    label,
-  }));
+  const formattedCategories = categories?.data?.map(
+    ({ id: value, name: label }) => ({
+      value,
+      label,
+    })
+  );
 
-  const formattedBrands = brands?.map(({ id: value, name: label }) => ({
+  const formattedBrands = brands?.data?.map(({ id: value, name: label }) => ({
     value,
     label,
   }));
@@ -115,10 +117,10 @@ export function ProductForm({
     // Fetch data from API and populate the form with prefilled values
     const fetchData = async () => {
       try {
-        const data = await http().get(
+        const { data } = await http().get(
           `${endpoints.products.getAll}/getById/${productId}`
         );
-        console.log({ data });
+        // console.log({ data });
         data && setValue("name", data?.title);
         data &&
           setValue(

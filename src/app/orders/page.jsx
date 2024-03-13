@@ -64,7 +64,7 @@ export default function Products() {
       </div>
 
       <div>
-        <DataTable columns={columns(handleDelete)} data={data} />
+        <DataTable columns={columns(handleDelete)} data={data?.data} />
       </div>
     </div>
   );

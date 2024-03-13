@@ -126,7 +126,7 @@ export default function Brands() {
       <div>
         <DataTable
           columns={columns(setType, openModal, setBrandId)}
-          data={data?.map(({ id, name }) => ({ id, name }))}
+          data={data?.data?.map(({ id, name }) => ({ id, name }))}
         />
       </div>
 
