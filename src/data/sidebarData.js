@@ -2,8 +2,10 @@ import { IoStatsChartOutline } from "react-icons/io5";
 import { AiOutlineShop } from "react-icons/ai";
 import { BiCategoryAlt } from "react-icons/bi";
 import { GoTag } from "react-icons/go";
-import { MdWeb } from "react-icons/md";
+import { FaRegQuestionCircle } from "react-icons/fa";
 import { PiUsersFour } from "react-icons/pi";
+import { GoChecklist } from "react-icons/go";
+import { TbUserQuestion } from "react-icons/tb";
 
 // Define the roles for each user type
 const ROLES = {
@@ -81,37 +83,37 @@ export const AllRoutes = [
   {
     label: "Enquiries",
     link: "/enquiries",
-    icon: PiUsersFour,
+    icon: FaRegQuestionCircle,
     roles: [ROLES.ADMIN],
   },
   {
     label: "Enquiries",
     link: "/enquiries/create",
-    icon: PiUsersFour,
+    icon: FaRegQuestionCircle,
     roles: [ROLES.ADMIN],
   },
   {
     label: "Enquiries",
     link: "/enquiries/[id]",
-    icon: PiUsersFour,
+    icon: FaRegQuestionCircle,
     roles: [ROLES.ADMIN],
   },
   {
     label: "Orders",
     link: "/orders",
-    icon: PiUsersFour,
+    icon: GoChecklist,
     roles: [ROLES.ADMIN],
   },
   {
     label: "Orders",
     link: "/orders/create",
-    icon: PiUsersFour,
+    icon: GoChecklist,
     roles: [ROLES.ADMIN],
   },
   {
     label: "Orders",
     link: "/orders/[id]",
-    icon: PiUsersFour,
+    icon: GoChecklist,
     roles: [ROLES.ADMIN],
   },
   {
@@ -125,5 +127,17 @@ export const AllRoutes = [
     link: "/cart",
     icon: PiUsersFour,
     roles: [ROLES.USER],
+  },
+  {
+    label: "Queries",
+    link: "/queries",
+    icon: TbUserQuestion,
+    roles: [ROLES.ADMIN],
+  },
+  {
+    label: "Queries",
+    link: "/queries/[id]",
+    icon: TbUserQuestion,
+    roles: [ROLES.ADMIN],
   },
 ];
