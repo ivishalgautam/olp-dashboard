@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useFetchCategories } from "../../../hooks/useFetchCategories";
 import useLocalStorage from "@/hooks/useLocalStorage.js";
@@ -22,7 +22,8 @@ import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
-``;
+import { debounce } from "lodash";
+
 export function ProductForm({
   type,
   handleCreate,
@@ -41,12 +42,14 @@ export function ProductForm({
     formState: { errors },
   } = useForm();
   const [text, setText] = useState("");
-  // console.log(text);
+  const debouncedSetText = debounce(setText, 1000);
+  // console.log(watch());
   const [tags, setTags] = useState([]);
   const [pictures, setPictures] = useState([]);
   const { data: categories } = useFetchCategories();
   const [token] = useLocalStorage("token");
   const router = useRouter();
+  const editorRef = useRef(null);
 
   const { data: brands } = useFetchBrands();
   const { data: products } = useFetchProducts();
@@ -114,13 +117,11 @@ export function ProductForm({
   };
 
   useEffect(() => {
-    // Fetch data from API and populate the form with prefilled values
     const fetchData = async () => {
       try {
         const { data } = await http().get(
           `${endpoints.products.getAll}/getById/${productId}`
         );
-        // console.log({ data });
         data && setValue("name", data?.title);
         data &&
           setValue(
@@ -142,15 +143,18 @@ export function ProductForm({
             "brand",
             formattedBrands?.find((so) => so.value === data?.brand_id)
           );
-        data && setValue("description", data?.description);
         data && setPictures(data?.pictures);
         data && setTags(data?.tags);
-        data && setText(data?.description);
+        if (!editorRef.current) {
+          data && setText(data?.description);
+          editorRef.current = true;
+        }
+        // data && setValue("description", data?.description);
         data && setValue("is_featured", data?.is_featured);
         data && setValue("sku", data?.sku);
         data && setValue("meta_title", data?.meta_title);
         data && setValue("meta_description", data?.meta_description);
-        data &&
+        data?.related_products &&
           setValue(
             "related_products",
             formattedProducts?.filter((so) =>
@@ -166,7 +170,13 @@ export function ProductForm({
     if (productId && (type === "edit" || type === "view")) {
       fetchData();
     }
-  }, [productId, type, formattedCategories?.length, formattedBrands?.length]);
+  }, [
+    productId,
+    type,
+    formattedCategories?.length,
+    formattedBrands?.length,
+    formattedProducts?.length,
+  ]);
 
   const handleFileChange = async (event, inputName) => {
     try {
@@ -291,7 +301,7 @@ export function ProductForm({
                       <Select
                         {...field}
                         options={formattedCategories}
-                        placeholder="Status"
+                        placeholder="Select category"
                         isDisabled={type === "view"}
                         className="w-full h-[42px] outline-none rounded-md bg-[#F7F7FC] font-mulish text-sm"
                         styles={{
@@ -404,10 +414,8 @@ export function ProductForm({
                     )}
                   />
 
-                  {errors.status && (
-                    <span className="text-red-600">
-                      {errors.status.message}
-                    </span>
+                  {errors.brand && (
+                    <span className="text-red-600">{errors.brand.message}</span>
                   )}
                 </div>
 
@@ -511,9 +519,11 @@ export function ProductForm({
                 <div className="col-span-3">
                   <Label htmlFor="description">Description</Label>
                   <Editor
+                    focus={editorRef.current}
                     readOnly={type === "view"}
+                    name="blog"
                     value={text}
-                    onTextChange={(e) => setText(e.htmlValue)}
+                    onTextChange={(e) => debouncedSetText(e.htmlValue)}
                     style={{ height: "320px" }}
                   />
                 </div>

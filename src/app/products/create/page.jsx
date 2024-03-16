@@ -18,7 +18,7 @@ export default function Create() {
 
   const createMutation = useMutation(createProduct, {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries("products");
       toast.success("Product created.");
     },
     onError: (error) => {

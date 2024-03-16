@@ -26,7 +26,7 @@ export default function Products() {
   const queryClient = useQueryClient();
   const { data, isLoading, isError, error } = useFetchProducts();
 
-  console.log({ data });
+  // console.log({ data });
 
   function openModal() {
     setIsModal(true);
@@ -38,7 +38,7 @@ export default function Products() {
 
   const deleteMutation = useMutation(deleteProduct, {
     onSuccess: () => {
-      toast.success("Category deleted.");
+      toast.success("Product deleted.");
       queryClient.invalidateQueries({ queryKey: ["products"] });
       closeModal();
     },
@@ -100,7 +100,7 @@ export default function Products() {
             handleDelete={handleDelete}
             closeModal={closeModal}
             productId={productId}
-            filteredProducts={filteredProducts}
+            // filteredProducts={filteredProducts}
           />
         </Modal>
       )}
