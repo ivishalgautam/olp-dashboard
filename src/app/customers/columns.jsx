@@ -97,7 +97,7 @@ export const columns = (
             checked={row.getValue("blocked")}
             onCheckedChange={() => handleCustomerStatus(id, !is_blocked)}
           />
-          <Small>{row.getValue("blocked") ? "Yes" : "No"}</Small>
+          <Small>{row.getValue("blocked") ? "Blocked" : "Unblocked"}</Small>
         </div>
       );
     },

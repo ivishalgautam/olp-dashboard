@@ -89,7 +89,7 @@ export default function Products() {
       <div>
         <DataTable
           columns={columns(setType, openModal, setProductId, publishProduct)}
-          data={data?.data}
+          data={data}
         />
       </div>
 

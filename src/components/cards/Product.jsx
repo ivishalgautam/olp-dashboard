@@ -1,37 +1,99 @@
-import React from "react";
+"use client";
+import React, { useContext } from "react";
 import Image from "next/image";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { H6 } from "../ui/typography";
 import { Button } from "../ui/button";
+import { IoBagHandleOutline } from "react-icons/io5";
+import http from "@/utils/http";
+import { endpoints } from "@/utils/endpoints";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { MainContext } from "@/store/context";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
-export default function ProductCard({ title, picture, id, handleAddTocart }) {
+const addToCart = (data) => {
+  return http().post(`${endpoints.cart.getAll}/temp-cart`, data);
+};
+
+export default function ProductCard({
+  id,
+  slug,
+  title,
+  pictures,
+  type,
+  category_name,
+  category_slug,
+  brand_name,
+  brand_slug,
+  handleAddToCart,
+}) {
+  const { user } = useContext(MainContext);
+  const queryClient = useQueryClient();
+  const createMutation = useMutation(addToCart, {
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries("cart");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      console.log({ error });
+    },
+  });
+
   return (
-    <Card className="w-auto">
-      <CardHeader>
-        <CardTitle className="text-center">{title}</CardTitle>
-        {/* <CardDescription>Card Description</CardDescription> */}
-      </CardHeader>
-      <CardContent>
-        <div className="relative size-32 mx-auto">
-          <Image
-            fill
-            src={`${process.env.NEXT_PUBLIC_IMAGE_DOMAIN}/${picture}`}
-            alt={title}
-            className="object-cover object-center rounded-lg"
-          />
+    <div className="relative flex flex-col items-center justify-between overflow-hidden rounded-md bg-white p-2 shadow-sm">
+      <span
+        className={cn(
+          "absolute left-2 top-2 z-10 rounded-full px-2 py-1 text-sm capitalize text-white",
+          {
+            "bg-lime-500": type === "genuine",
+            "bg-red-500": type === "aftermarket",
+            "bg-blue-500": type === "oem",
+          }
+        )}
+      >
+        {type}
+      </span>
+      <div className="flex flex-col gap-1">
+        <Link href={`/products/${slug}`}>
+          <figure className="overflow-hidden rounded-lg">
+            <Image
+              width={500}
+              height={500}
+              src={`${process.env.NEXT_PUBLIC_IMAGE_DOMAIN}/${pictures[0]}`}
+              alt={title}
+              className="h-full w-full object-cover object-center transition-transform hover:scale-110"
+            />
+          </figure>
+        </Link>
+        <Link
+          href={`/categories/${category_slug}`}
+          className="text-sm uppercase text-gray-400 transition-colors hover:text-primary"
+        >
+          {category_name}
+        </Link>
+        <div className="text-sm">
+          Brand:{" "}
+          <Link
+            href={`/brands/${brand_slug}`}
+            className="capitalize text-sky-500"
+          >
+            {brand_name}
+          </Link>
         </div>
-      </CardContent>
-      <CardFooter className="text-center">
-        <Button className="mx-auto" onClick={() => handleAddTocart(id)}>
-          Add to cart
+        <Link href={`/products/${slug}`}>
+          <H6 className={"text-start text-sm"}>{title}</H6>
+        </Link>
+      </div>
+      <div className="w-full border-t pt-5">
+        <Button
+          className="w-full bg-gray-100 text-black hover:text-white"
+          onClick={() => handleAddToCart(id)}
+        >
+          <IoBagHandleOutline size={20} />
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }

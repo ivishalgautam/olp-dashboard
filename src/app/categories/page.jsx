@@ -51,6 +51,7 @@ export default function Categories() {
     onSuccess: () => {
       toast.success("New category added.");
       queryClient.invalidateQueries("categories");
+      closeModal();
     },
     onError: (error) => {
       if (isObject(error)) {
@@ -65,6 +66,7 @@ export default function Categories() {
     onSuccess: () => {
       toast.success("Category updated.");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+      closeModal();
     },
     onError: (error) => {
       if (isObject(error)) {
@@ -79,6 +81,7 @@ export default function Categories() {
     onSuccess: () => {
       toast.success("Category deleted.");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+      closeModal();
     },
     onError: (error) => {
       if (isObject(error)) {
@@ -137,7 +140,6 @@ export default function Categories() {
             handleCreate={handleCreate}
             handleUpdate={handleUpdate}
             handleDelete={handleDelete}
-            closeModal={closeModal}
             categoryId={categoryId}
           />
         </Modal>

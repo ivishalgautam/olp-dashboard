@@ -20,7 +20,6 @@ export function CategoryForm({
   handleCreate,
   handleUpdate,
   handleDelete,
-  closeModal,
   categoryId,
 }) {
   const {
@@ -47,9 +46,7 @@ export function CategoryForm({
     } else if (type === "delete") {
       handleDelete(categoryId);
     }
-    closeModal();
   };
-  console.log({ pictures });
   useEffect(() => {
     // Fetch data from API and populate the form with prefilled values
     const fetchData = async () => {

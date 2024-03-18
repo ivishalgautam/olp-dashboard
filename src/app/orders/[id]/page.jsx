@@ -106,8 +106,6 @@ export default function Page({ params: { id } }) {
       );
   }, [data]);
 
-  console.log(watch());
-
   const onSubmit = (data) => {
     const payload = {
       status: data.status,

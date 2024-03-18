@@ -53,7 +53,6 @@ export default function Customers() {
   };
 
   async function handleCustomerStatus(customerId, status) {
-    console.log({ customerId, status });
     try {
       const response = await http().put(
         `${endpoints.users.getAll}/status/${customerId}`,
@@ -92,7 +91,7 @@ export default function Customers() {
             setCustomerId,
             handleCustomerStatus
           )}
-          data={data?.data}
+          data={data}
         />
       </div>
 

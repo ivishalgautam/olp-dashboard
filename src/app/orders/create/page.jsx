@@ -20,30 +20,26 @@ import ProductCard from "@/components/cards/Product";
 import { toast } from "sonner";
 
 const addToCart = (data) => {
-  return http().post(`${endpoints.cart.getAll}/temp-cart`, data);
+  return http().post(`${endpoints.orders.getAll}`, data);
 };
 
 export default function Create() {
   const {
-    register,
     control,
     handleSubmit,
-    setValue,
-    getValues,
     watch,
     formState: { errors },
   } = useForm();
   const [token] = useLocalStorage("token");
   const { data } = useFetchCustomers();
   const { data: products } = useFetchProducts();
-  console.log({ products });
 
   const createMutation = useMutation(addToCart, {
     onSuccess: (data) => {
       toast.success(data.message);
     },
     onError: (error) => {
-      toast.success(error.message);
+      toast.error(error.message);
       console.log({ error });
     },
   });
@@ -64,12 +60,10 @@ export default function Create() {
     closeModal();
   };
 
-  const handleAddTocart = async (id) => {
-    if (!watch("user_id")) return toast.warning("Plaese select customer");
+  const handleAddToCart = async (id) => {
+    if (!watch("user_id")) return toast.warning("Please select customer");
     createMutation.mutate({ product_id: id, user_id: watch("user_id") });
   };
-
-  console.log(watch());
 
   return (
     <div className="container mx-auto bg-white p-8 rounded-lg border-input">
@@ -105,14 +99,12 @@ export default function Create() {
 
       {watch("user_id") && (
         <div>
-          <div className="grid grid-cols-4">
+          <div className="grid grid-cols-4 gap-2">
             {products?.map((prd) => (
               <ProductCard
                 key={prd.id}
-                title={prd.title}
-                picture={prd.pictures[0]}
-                id={prd.id}
-                handleAddTocart={handleAddTocart}
+                {...prd}
+                handleAddToCart={handleAddToCart}
               />
             ))}
           </div>

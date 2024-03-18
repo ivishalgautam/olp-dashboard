@@ -3,7 +3,8 @@ import { endpoints } from "../utils/endpoints.js";
 import http from "../utils/http.js";
 
 const fetchCustomers = async () => {
-  return await http().get(endpoints.users.getAll);
+  const { data } = await http().get(endpoints.users.getAll);
+  return data;
 };
 
 export function useFetchCustomers() {

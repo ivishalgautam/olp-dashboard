@@ -99,15 +99,11 @@ export default function Page() {
     createMutation.mutate(data);
   }
 
-  console.log(errors);
-
   return (
     <div className="bg-white rounded-md p-4">
       <form onSubmit={handleSubmit(onSubmit)}>
         <Table>
-          <TableCaption>
-            {fields?.length > 0 ? "All cart products" : "Empty"}
-          </TableCaption>
+          <TableCaption>{fields?.length === 0 && "Empty"}</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>Image</TableHead>
