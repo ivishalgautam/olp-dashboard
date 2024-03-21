@@ -49,7 +49,17 @@ export const columns = (setType, openModal, setProductId) => [
       );
     },
     cell: ({ row }) => {
-      return <div className={`capitalize`}>{row.original.title}</div>;
+      const id = row.original.id;
+      return (
+        <div className={`capitalize`}>
+          <Link
+            href={`/products/${id}/view`}
+            className="hover:text-primary transition-colors"
+          >
+            {row.original.title}
+          </Link>
+        </div>
+      );
     },
   },
   {

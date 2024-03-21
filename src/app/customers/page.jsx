@@ -14,9 +14,9 @@ import http from "@/utils/http";
 import { endpoints } from "../../utils/endpoints.js";
 import { toast } from "sonner";
 import { isObject } from "@/utils/object";
-
-async function deleteProduct(data) {
-  return http().delete(`${endpoints.products.getAll}/${data.id}`);
+import { CustomerForm } from "../../components/Forms/Customer.js";
+async function deleteCustomer(data) {
+  return http().delete(`${endpoints.users.getAll}/${data.id}`);
 }
 
 export default function Customers() {
@@ -33,10 +33,10 @@ export default function Customers() {
     setIsModal(false);
   }
 
-  const deleteMutation = useMutation(deleteProduct, {
+  const deleteMutation = useMutation(deleteCustomer, {
     onSuccess: () => {
-      toast.success("Category deleted.");
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast.success("Customer deleted.");
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
       closeModal();
     },
     onError: (error) => {
@@ -56,11 +56,10 @@ export default function Customers() {
     try {
       const response = await http().put(
         `${endpoints.users.getAll}/status/${customerId}`,
-        { blocked: status }
+        { is_active: status }
       );
       toast.success(response.message);
       queryClient.invalidateQueries({ queryKey: ["customers"] });
-      console.log({ response });
     } catch (error) {
       console.log(error);
     }
@@ -97,12 +96,11 @@ export default function Customers() {
 
       {isModal && (
         <Modal onClose={closeModal} isOpen={isModal}>
-          <ProductForm
+          <CustomerForm
             type={type}
             handleDelete={handleDelete}
             closeModal={closeModal}
             customerId={customerId}
-            filteredProducts={filteredProducts}
           />
         </Modal>
       )}

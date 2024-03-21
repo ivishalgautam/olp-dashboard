@@ -27,6 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Small } from "@/components/ui/typography";
 import { MdDelete } from "react-icons/md";
+import { useRouter } from "next/navigation";
 
 const createOrder = (data) => {
   return http().put(`${endpoints.orders.getAll}/${data.order_id}`, data);
@@ -37,6 +38,7 @@ const deleteOrderItem = ({ id }) => {
 };
 
 export default function Page({ params: { id } }) {
+  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -52,20 +54,21 @@ export default function Page({ params: { id } }) {
   });
   const queryClient = useQueryClient();
 
-  const fetchOrderById = () => {
-    return http().get(`${endpoints.orders.getAll}/getByOrderId/${id}`);
+  const fetchOrderById = async () => {
+    return await http().get(`${endpoints.orders.getAll}/${id}`);
   };
 
-  const { data, isFetching } = useQuery({
+  const { data } = useQuery({
     queryFn: fetchOrderById,
-    queryKey: ["cart"],
+    queryKey: [`order-${id}`],
     enabled: !!id,
   });
 
   const createMutation = useMutation(createOrder, {
     onSuccess: (data) => {
       toast.success(data.message);
-      //   remove();
+      queryClient.invalidateQueries(["orders"]);
+      router.push("/orders");
     },
     onError: (error) => {
       console.log({ error });
@@ -91,30 +94,29 @@ export default function Page({ params: { id } }) {
   };
 
   useEffect(() => {
-    data && setValue("status", data.status);
-    data &&
-      data?.items?.map((ord) =>
-        append({
-          _id: ord.id,
-          image: ord.pictures[0],
-          title: ord.title,
-          quantity: ord.quantity,
-          dispatched_quantity: ord.dispatched_quantity,
-          status: ord.status,
-          comment: ord.comment,
-        })
-      );
-  }, [data]);
+    const fetchData = async (id) => {
+      const { data } = await http().get(`${endpoints.orders.getAll}/${id}`);
+      data && setValue("status", data.status);
+      data &&
+        data?.items?.map((ord) =>
+          append({
+            _id: ord.id,
+            image: ord.pictures[0],
+            title: ord.title,
+            quantity: ord.quantity,
+            dispatched_quantity: ord.dispatched_quantity,
+            status: ord.status,
+            comment: ord.comment,
+          })
+        );
+    };
+    fetchData(id);
+  }, [, id]);
 
   const onSubmit = (data) => {
     const payload = {
       status: data.status,
-      items: data.items.map((item) => {
-        if (item.status !== "partially_dispatched") {
-          return { ...item, dispatched_quantity: 0 };
-        }
-        return item;
-      }),
+      items: data.items,
     };
     handleCreate(payload);
   };
@@ -127,9 +129,7 @@ export default function Page({ params: { id } }) {
     <div className="bg-white rounded-md p-4">
       <form onSubmit={handleSubmit(onSubmit)}>
         <Table>
-          <TableCaption>
-            {fields?.length > 0 ? "All orders" : "Empty"}
-          </TableCaption>
+          {fields?.length === 0 && <TableCaption>Empty</TableCaption>}
           <TableBody>
             {fields?.map((field, key) => (
               <TableRow key={field.id}>
@@ -175,7 +175,7 @@ export default function Page({ params: { id } }) {
                       <Select
                         onValueChange={field.onChange}
                         required
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />

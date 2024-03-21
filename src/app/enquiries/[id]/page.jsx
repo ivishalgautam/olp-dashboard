@@ -33,6 +33,10 @@ const updateEnquiry = (data) => {
   return http().put(`${endpoints.enquiries.getAll}/${data.order_id}`, data);
 };
 
+const convertToOrder = ({ id }) => {
+  return http().post(`${endpoints.enquiries.getAll}/convertToOrder/${id}`);
+};
+
 const deleteOrderItem = ({ id }) => {
   return http().delete(`${endpoints.enquiries.getAll}/order-items/${id}`);
 };
@@ -66,6 +70,18 @@ export default function Page({ params: { id } }) {
     },
   });
 
+  const convertToOrderMutation = useMutation(convertToOrder, {
+    onSuccess: (data) => {
+      toast.success(data?.message ?? "Coverted to order.");
+      queryClient.invalidateQueries("enquiries");
+      router.push("/enquiries");
+    },
+    onError: (error) => {
+      console.log({ error });
+      toast.error(error.message);
+    },
+  });
+
   const deleteMutation = useMutation(deleteOrderItem, {
     onSuccess: (data) => {
       const index = fields.findIndex((so) => so._id === data.data.id);
@@ -82,15 +98,16 @@ export default function Page({ params: { id } }) {
     deleteMutation.mutate({ id });
   };
 
+  const handleConvertToOrder = ({ id }) => {
+    convertToOrderMutation.mutate({ id });
+  };
+
   useEffect(() => {
     const fetchData = async (id) => {
-      const { data } = await http().get(
-        `${endpoints.enquiries.getAll}/getByEnquiryId/${id}`
-      );
+      const { data } = await http().get(`${endpoints.enquiries.getAll}/${id}`);
       console.log({ data });
       data && setValue("status", data.status);
-      data && setValue("enquiry_status", data.enquiry_status);
-      data && setValue("order_type", data.order_type);
+      data && setValue("user_id", data.user_id);
       data &&
         data?.items?.map((ord) =>
           append({
@@ -98,8 +115,7 @@ export default function Page({ params: { id } }) {
             image: ord.pictures[0],
             title: ord.title,
             quantity: ord.quantity,
-            dispatched_quantity: ord.dispatched_quantity,
-            enquiry_status: ord.enquiry_status,
+            status: ord.status,
             available_quantity: ord.available_quantity,
             comment: ord.comment,
           })
@@ -112,17 +128,8 @@ export default function Page({ params: { id } }) {
   const onSubmit = (data) => {
     const payload = {
       status: data.status,
-      enquiry_status: data.enquiry_status,
-      order_type: data.order_type,
-      items: data.items.map((item) => {
-        if (item.enquiry_status !== "partially_available") {
-          return { ...item, available_quantity: null };
-        }
-        if (data.order_type === "order") {
-          return { ...item, comment: "" };
-        }
-        return item;
-      }),
+      user_id: data.user_id,
+      items: data.items,
     };
     handleCreate(payload);
   };
@@ -135,9 +142,7 @@ export default function Page({ params: { id } }) {
     <div className="bg-white rounded-md p-4">
       <form onSubmit={handleSubmit(onSubmit)}>
         <Table>
-          <TableCaption>
-            {fields?.length > 0 ? "All orders" : "Empty"}
-          </TableCaption>
+          {fields?.length === 0 && <TableCaption>Empty</TableCaption>}
           <TableBody>
             {fields?.map((field, key) => (
               <TableRow key={field.id}>
@@ -178,28 +183,30 @@ export default function Page({ params: { id } }) {
                 <TableCell>
                   <Controller
                     control={control}
-                    name={`items.${key}.enquiry_status`}
-                    render={({ field }) => (
-                      <Select
-                        onValueChange={field.onChange}
-                        required
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="partially_available">
-                            Partially available
-                          </SelectItem>
-                          <SelectItem value="not_available">
-                            Not available
-                          </SelectItem>
-                          <SelectItem value="available">Available</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
+                    name={`items.${key}.status`}
+                    render={({ field }) => {
+                      return (
+                        <Select
+                          onValueChange={field.onChange}
+                          required
+                          value={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="partially_available">
+                              Partially available
+                            </SelectItem>
+                            <SelectItem value="not_available">
+                              Not available
+                            </SelectItem>
+                            <SelectItem value="available">Available</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      );
+                    }}
                   />
                   {errors?.items?.[key] && (
                     <Small className={"text-red-500"}>
@@ -209,8 +216,7 @@ export default function Page({ params: { id } }) {
                 </TableCell>
 
                 {/* dispatched quantity */}
-                {watch(`items.${key}.enquiry_status`) ===
-                  "partially_available" && (
+                {watch(`items.${key}.status`) === "partially_available" && (
                   <TableCell>
                     <Input
                       type="number"
@@ -258,13 +264,12 @@ export default function Page({ params: { id } }) {
           </TableBody>
         </Table>
 
-        <div className="grid grid-cols-2 gap-4 my-6">
+        <div className="grid grid-cols-1 my-6">
           <div>
             <Label>Enquiry status</Label>
-
             <Controller
               control={control}
-              name={`enquiry_status`}
+              name={`status`}
               rules={{ required: true }}
               render={({ field }) => (
                 <Select
@@ -292,33 +297,17 @@ export default function Page({ params: { id } }) {
               </Small>
             )}
           </div>
-
-          <div>
-            <Label>Convert to order</Label>
-            <Controller
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <Select onValueChange={onChange} required value={value}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Convert" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="order">Order</SelectItem>
-                    <SelectItem value="enquiry">Enquiry</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-              name="order_type"
-            />
-            {errors?.status && (
-              <Small className={"text-red-500"}>{errors.status.message}</Small>
-            )}
-          </div>
         </div>
 
         {fields?.length > 0 && (
-          <div className="text-end">
+          <div className="flex items-center justify-between">
+            <Button
+              type="button"
+              variant="default"
+              onClick={() => handleConvertToOrder({ id })}
+            >
+              Convert to order
+            </Button>
             <Button type="submit" variant="primary">
               Submit query
             </Button>

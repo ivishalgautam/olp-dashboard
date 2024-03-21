@@ -10,7 +10,7 @@ import http from "@/utils/http";
 import { endpoints } from "@/utils/endpoints";
 import { isObject } from "@/utils/object";
 import Select from "react-select";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import axios from "axios";
 import { AiOutlineDelete } from "react-icons/ai";
@@ -40,7 +40,14 @@ export function ProductForm({
     reset,
     getValues,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: { descriptions: [{ key: "", value: "" }] },
+  });
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "descriptions",
+  });
+
   const [text, setText] = useState("");
   const debouncedSetText = debounce(setText, 1000);
   // console.log(watch());
@@ -78,12 +85,10 @@ export function ProductForm({
     label,
   }));
 
-  const formattedProducts = products?.data?.map(
-    ({ id: value, title: label }) => ({
-      value,
-      label,
-    })
-  );
+  const formattedProducts = products?.map(({ id: value, title: label }) => ({
+    value,
+    label,
+  }));
 
   const onSubmit = (data) => {
     if (type === "delete") {
@@ -93,6 +98,7 @@ export function ProductForm({
     const payload = {
       title: data.name,
       description: text,
+      custom_description: data.descriptions,
       pictures: pictures,
       tags: tags,
       type: data?.product_type.value,
@@ -143,6 +149,12 @@ export function ProductForm({
             "brand",
             formattedBrands?.find((so) => so.value === data?.brand_id)
           );
+        data &&
+          data.custom_description &&
+          data?.custom_description?.map(({ key, value }) => {
+            remove();
+            append({ key, value });
+          });
         data && setPictures(data?.pictures);
         data && setTags(data?.tags);
         if (!editorRef.current) {
@@ -549,6 +561,66 @@ export function ProductForm({
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* custom description */}
+            <div className="col-span-3 bg-white p-8 rounded-lg border-input shadow-lg space-y-2">
+              <Title text={"Custom descriptions"} />
+
+              <div>
+                {fields.map((field, key) => (
+                  <div
+                    key={key}
+                    className="flex items-end justify-center gap-2"
+                  >
+                    <div className="flex-1">
+                      <Label>Name</Label>
+                      <Input
+                        {...register(`descriptions.${key}.key`, {
+                          required: "required",
+                        })}
+                        placeholder="Custom key"
+                        disabled={type === "view"}
+                      />
+                      {errors.descriptions && (
+                        <span className="text-red-600">
+                          {errors.descriptions?.[key]?.key?.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <Label>Value</Label>
+                      <Input
+                        {...register(`descriptions.${key}.value`, {
+                          required: "required",
+                        })}
+                        placeholder="Custom value"
+                        disabled={type === "view"}
+                      />
+                      {errors.descriptions && (
+                        <span className="text-red-600">
+                          {errors.descriptions?.[key]?.value?.message}
+                        </span>
+                      )}
+                    </div>
+                    {type !== "view" && (
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="destructive"
+                        onClick={() => remove(key)}
+                      >
+                        <AiOutlineDelete size={20} />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {type !== "view" && (
+                <Button type="button" onClick={() => append()}>
+                  Add
+                </Button>
+              )}
             </div>
 
             {/* product media */}

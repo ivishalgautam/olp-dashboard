@@ -55,7 +55,7 @@ export const columns = (handleDelete) => [
       return <Button variant="ghost">Status</Button>;
     },
     cell: ({ row }) => {
-      const status = row.original.enquiry_status;
+      const status = row.original.status;
       return (
         <div>
           <Button

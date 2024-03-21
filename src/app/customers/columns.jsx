@@ -29,24 +29,6 @@ export const columns = (
   handleCustomerStatus
 ) => [
   {
-    accessorKey: "image_url",
-    header: ({ column }) => {
-      return <Button variant="ghost">Image</Button>;
-    },
-    cell: ({ row }) => {
-      const image = row.original.image_url;
-      return (
-        <Image
-          src={`${process.env.NEXT_PUBLIC_IMAGE_DOMAIN}/${image}`}
-          width={50}
-          height={50}
-          alt="image"
-          className="rounded"
-        />
-      );
-    },
-  },
-  {
     accessorKey: "first_name",
     header: ({ column }) => {
       return (
@@ -89,15 +71,18 @@ export const columns = (
       return <Button variant="ghost">Status</Button>;
     },
     cell: ({ row }) => {
-      const is_blocked = row.original.blocked;
+      const is_active = row.original.is_active;
+      console.log({ is_active });
       const id = row.original.id;
       return (
-        <div className="flex items-center justify-center gap-1">
+        <div className="flex items-center justify-start gap-2">
           <Switch
-            checked={row.getValue("blocked")}
-            onCheckedChange={() => handleCustomerStatus(id, !is_blocked)}
+            checked={is_active}
+            onCheckedChange={() => handleCustomerStatus(id, !is_active)}
           />
-          <Small>{row.getValue("blocked") ? "Blocked" : "Unblocked"}</Small>
+          <Small className={is_active ? "text-green-500" : "text-red-500"}>
+            {is_active ? "active" : "inactive"}
+          </Small>
         </div>
       );
     },

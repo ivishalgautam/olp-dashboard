@@ -16,7 +16,8 @@ async function deleteEnquiry({ id }) {
 }
 
 async function fetchEnquiries() {
-  return http().get(`${endpoints.enquiries.getAll}`);
+  const { data } = await http().get(`${endpoints.enquiries.getAll}`);
+  return data;
 }
 
 export default function Products() {
@@ -56,13 +57,10 @@ export default function Products() {
     <div className="container mx-auto bg-white p-8 rounded-lg border-input">
       <div className="flex items-center justify-between">
         <Title text={"Enquiries"} />
-        <Button asChild>
-          <Link href={"/enquiries/create"}>Create</Link>
-        </Button>
       </div>
 
       <div>
-        <DataTable columns={columns(handleDelete)} data={data?.data} />
+        <DataTable columns={columns(handleDelete)} data={data} />
       </div>
     </div>
   );

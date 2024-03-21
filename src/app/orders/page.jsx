@@ -16,7 +16,7 @@ async function deleteOrder({ id }) {
 }
 
 async function fetchOrders() {
-  return http().get(`${endpoints.orders.getAll}?type=order`);
+  return http().get(`${endpoints.orders.getAll}`);
 }
 
 export default function Products() {

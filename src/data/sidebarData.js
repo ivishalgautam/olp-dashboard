@@ -88,12 +88,6 @@ export const AllRoutes = [
   },
   {
     label: "Enquiries",
-    link: "/enquiries/create",
-    icon: FaRegQuestionCircle,
-    roles: [ROLES.ADMIN],
-  },
-  {
-    label: "Enquiries",
     link: "/enquiries/[id]",
     icon: FaRegQuestionCircle,
     roles: [ROLES.ADMIN],
