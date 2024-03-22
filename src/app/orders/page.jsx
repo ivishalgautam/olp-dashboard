@@ -58,11 +58,9 @@ export default function Products() {
     <div className="container mx-auto bg-white p-8 rounded-lg border-input">
       <div className="flex items-center justify-between">
         <Title text={"Orders"} />
-        {!true && (
-          <Button asChild>
-            <Link href={"/orders/create"}>Create</Link>
-          </Button>
-        )}
+        <Button asChild>
+          <Link href={"/orders/create"}>Create</Link>
+        </Button>
       </div>
 
       <div>

@@ -120,7 +120,7 @@ export const AllRoutes = [
     label: "Cart",
     link: "/cart",
     icon: PiUsersFour,
-    roles: [ROLES.USER],
+    roles: [ROLES.ADMIN],
   },
   {
     label: "Queries",

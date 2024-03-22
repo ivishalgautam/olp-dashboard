@@ -5,15 +5,15 @@ import { H6 } from "../ui/typography";
 import { Button } from "../ui/button";
 import { IoBagHandleOutline } from "react-icons/io5";
 import http from "@/utils/http";
-import { endpoints } from "@/utils/endpoints";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { MainContext } from "@/store/context";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { endpoints } from "../../utils/endpoints";
 
 const addToCart = (data) => {
-  return http().post(`${endpoints.cart.getAll}/temp-cart`, data);
+  return http().post(`${endpoints.cart.temp}`, data);
 };
 
 export default function ProductCard({
@@ -28,7 +28,6 @@ export default function ProductCard({
   brand_slug,
   handleAddToCart,
 }) {
-  const { user } = useContext(MainContext);
   const queryClient = useQueryClient();
   const createMutation = useMutation(addToCart, {
     onSuccess: (data) => {
@@ -42,7 +41,7 @@ export default function ProductCard({
   });
 
   return (
-    <div className="relative flex flex-col items-center justify-between overflow-hidden rounded-md bg-white p-2 shadow-sm">
+    <div className="relative flex flex-col items-center justify-between overflow-hidden rounded-md bg-white p-2 shadow-lg">
       <span
         className={cn(
           "absolute left-2 top-2 z-10 rounded-full px-2 py-1 text-sm capitalize text-white",
@@ -89,7 +88,7 @@ export default function ProductCard({
       <div className="w-full border-t pt-5">
         <Button
           className="w-full bg-gray-100 text-black hover:text-white"
-          onClick={() => handleAddToCart(id)}
+          onClick={() => handleAddToCart({ product_id: id })}
         >
           <IoBagHandleOutline size={20} />
         </Button>
