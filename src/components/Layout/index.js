@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 export const logout = () => {
   if (typeof window !== "undefined") {
     localStorage.clear();
+    window.location.href = "/login";
   }
   redirect("/login");
 };

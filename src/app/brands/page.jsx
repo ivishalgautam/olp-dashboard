@@ -106,7 +106,7 @@ export default function Brands() {
   }
 
   if (isError) {
-    return JSON.stringify(error);
+    return error.message;
   }
 
   return (

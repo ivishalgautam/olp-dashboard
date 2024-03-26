@@ -1,12 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import Title from "../Title";
 import http from "@/utils/http";
 import { endpoints } from "@/utils/endpoints";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { Label } from "../ui/label";
+import { Switch } from "../ui/switch";
 
 export function BrandForm({
   type,
@@ -29,6 +31,7 @@ export function BrandForm({
   const onSubmit = (data) => {
     const payload = {
       name: data.name,
+      is_featured: data.is_featured,
       image: pictures,
     };
 
@@ -51,6 +54,7 @@ export function BrandForm({
         );
 
         data && setValue("name", data?.name);
+        data && setValue("is_featured", data?.is_featured);
       } catch (error) {
         console.error(error);
       }
@@ -68,13 +72,14 @@ export function BrandForm({
             type === "create"
               ? "Add brand"
               : type === "view"
-              ? "Brand details"
-              : type === "edit"
-              ? "Edit brand"
-              : "Are you sure you want to delete"
+                ? "Brand details"
+                : type === "edit"
+                  ? "Edit brand"
+                  : "Are you sure you want to delete"
           }
         />
         <div>
+          <Label htmlFor="name">Brand Name</Label>
           <Input
             type="text"
             disabled={type === "view" || type === "delete"}
@@ -88,14 +93,32 @@ export function BrandForm({
           )}
         </div>
 
+        <div className="flex justify-center gap-1 flex-col mt-4">
+          <Label htmlFor="is_featured">Is featured?</Label>
+          <Controller
+            control={control}
+            name="is_featured"
+            render={({ field: { onChange, value } }) => (
+              <Switch
+                onCheckedChange={onChange}
+                checked={value}
+                disabled={type === "view" || type === "delete"}
+              />
+            )}
+          />
+          {errors.is_featured && (
+            <span className="text-red-600">{errors.is_featured.message}</span>
+          )}
+        </div>
+
         <div className="text-right">
           {type !== "view" && (
             <Button variant={type === "delete" ? "destructive" : "default"}>
               {type === "create"
                 ? "Create"
                 : type === "edit"
-                ? "Update"
-                : "Delete"}
+                  ? "Update"
+                  : "Delete"}
             </Button>
           )}
         </div>

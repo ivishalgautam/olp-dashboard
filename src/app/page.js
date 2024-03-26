@@ -1,7 +1,9 @@
+import Dashboard from "../components/Dashboard.js";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      home
-    </main>
+    <section className="container mx-auto bg-white p-8 rounded-lg border-input">
+      <Dashboard />
+    </section>
   );
 }
